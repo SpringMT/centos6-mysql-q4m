@@ -27,9 +27,11 @@ RUN yum install -y \
 
 ENV MYSQL_VERSION 5.6.35
 ENV Q4M_VERSION 0.9.14
-ENV PATH /usr/local/mysql/bin:$PATH
+ENV MYSQLDIR /var/lib/mysql
 
 RUN groupadd -r mysql && useradd -r -g mysql mysql
+
+RUN mkdir /docker-entrypoint-initdb.d
 
 # install mysql-build
 RUN set -x \
@@ -39,14 +41,20 @@ RUN set -x \
 && mkdir -p /var/lib/mysql /var/run/mysqld \
 && chown -R mysql:mysql /var/lib/mysql /var/run/mysqld \
 && chmod 777 /var/run/mysqld \
-&& /usr/local/src/mysql-build/bin/mysql-build --verbose $MYSQL_VERSION /var/lib/mysql q4m-$Q4M_VERSION \
-&& rm -rf /usr/local/src/mysql-build \
+&& /usr/local/src/mysql-build/bin/mysql-build -v $MYSQL_VERSION $MYSQLDIR q4m-$Q4M_VERSION \
+&& rm -rf /usr/local/src/mysql-build
 
-VOLUME /var/lib/mysql
+COPY ./my.cnf /etc/my.cnf
+
+VOLUME $MYSQLDIR
+WORKDIR $MYSQLDIR
+
+ENV PATH $MYSQLDIR/bin:$PATH
+ENV PATH $MYSQLDIR/scripts:$PATH
 
 COPY docker-entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
 EXPOSE 3306
-CMD ["mysqld"]
+CMD ["mysqld", "--user=mysql"]
 
