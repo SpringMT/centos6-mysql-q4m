@@ -42,6 +42,7 @@ RUN set -x \
 && chown -R mysql:mysql /var/lib/mysql /var/run/mysqld \
 && chmod 777 /var/run/mysqld \
 && /usr/local/src/mysql-build/bin/mysql-build -v $MYSQL_VERSION $MYSQLDIR q4m-$Q4M_VERSION \
+&& chown -R mysql:mysql /var/lib/mysql
 && rm -rf /usr/local/src/mysql-build
 
 COPY ./my.cnf /etc/my.cnf
