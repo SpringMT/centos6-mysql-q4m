@@ -34,6 +34,7 @@ if [ "$1" = 'mysqld' ]; then
 		chown -R mysql:mysql "$DATADIR"
 
 		echo 'Running mysql_install_db'
+		cd $MYSQLDIR
 		mysql_install_db --user=mysql --datadir="$DATADIR" --rpm --keep-my-cnf
 		echo 'Finished mysql_install_db'
 
